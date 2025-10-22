@@ -7,3 +7,4 @@ In the age of social media, the interactions between people, the news, influence
 
 
 #Contribution for github: <David Jaramillo>
+#Contribution for github: <Alexis Silva>
