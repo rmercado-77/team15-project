@@ -1,0 +1,43 @@
+%% Clean the EJI 2024 New Mexico dataset
+% David Jaramillo
+
+% ---- Step 1: Load dataset ----
+infile = 'EJI_2024_New_Mexico.csv';
+outfile = 'EJI_2024_New_Mexico_CLEAN.csv';
+
+fprintf('Loading %s...\n', infile);
+T = readtable(infile);
+
+% ---- Step 2: Standardize missing entries ----
+T = standardizeMissing(T, {"", "NA", "N/A", "NaN", "null", -999, -9999});
+
+% ---- Step 3: Remove duplicate rows ----
+T = unique(T);
+
+% ---- Step 4: Convert numeric-looking text columns to numbers ----
+for i = 1:width(T)
+    col = T.(i);
+    if iscell(col) || isstring(col)
+        numCol = str2double(string(col));
+        % Replace column if >50% numeric values
+        if sum(~isnan(numCol)) > 0.5 * height(T)
+            T.(i) = numCol;
+        end
+    end
+end
+
+% ---- Step 5: Fill missing numeric data with column means ----
+for i = 1:width(T)
+    if isnumeric(T.(i))
+        T.(i) = fillmissing(T.(i), 'constant', mean(T.(i), 'omitnan'));
+    end
+end
+
+% ---- Step 6: Display summary ----
+disp('✅ Cleaned dataset preview:');
+disp(T(1:10, :));
+summary(T);
+
+% ---- Step 7: Save cleaned data ----
+writetable(T, outfile);
+fprintf('Cleaned data saved as %s\n', outfile);
